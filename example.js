@@ -2,7 +2,7 @@
 import {
     openDevice,
     closeDevice,
-    streamI2C,
+    streamI2C
 } from './ch341.js';
 
 // SSD1306 控制字节
