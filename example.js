@@ -3,12 +3,12 @@ import {
     openDevice,
     closeDevice,
     streamI2C,
-    SSD1306_I2C_ADDRESS
 } from './ch341.js';
 
 // SSD1306 控制字节
 const SSD1306_COMMAND = 0x80;
 const SSD1306_DATA = 0x40;
+const SSD1306_I2C_ADDRESS = 0x3C;
 
 // 设备索引
 const DEVICE_INDEX = 0;
@@ -32,10 +32,13 @@ function sendCommand(command) {
 
 // 发送数据到 SSD1306
 function sendData(data) {
+    // 如果传入的是数字，转换为数组
+    const dataArray = Array.isArray(data) ? data : [data];
+    
     const buffer = Buffer.from([
         (SSD1306_I2C_ADDRESS << 1), // I2C 写地址
         SSD1306_DATA,               // 数据控制字节
-        ...data                     // 实际数据
+        ...dataArray                // 实际数据
     ]);
     
     return streamI2C(
@@ -47,8 +50,8 @@ function sendData(data) {
     );
 }
 
-// SSD1306 简单亮屏
-function lightSSD1306() {
+// SSD1306 初始化
+function initSSD1306() {
     // 基本初始化序列
     const initCommands = [
         0xAE, // Display OFF (睡眠模式)
@@ -88,19 +91,74 @@ function lightSSD1306() {
     }
     
     console.log('SSD1306 初始化完成');
-    
-    // 全屏点亮 - 使用" Entire Display On "命令
-    if (!sendCommand(0xA5)) { // A5命令使整个显示点亮
-        console.error('发送全屏点亮命令失败');
-        return false;
-    }
-    
-    console.log('屏幕已全亮');
     return true;
 }
 
+// 清屏
+function clearScreen() {
+    // 设置内存地址到起始位置
+    sendCommand(0x21); // 设置列地址
+    sendCommand(0x00); // 起始列
+    sendCommand(0x7F); // 结束列
+    sendCommand(0x22); // 设置页地址
+    sendCommand(0x00); // 起始页
+    sendCommand(0x07); // 结束页
+    
+    // 发送清屏数据（全0，黑色）
+    const clearData = new Array(128 * 8).fill(0);
+    return sendData(clearData);
+}
+
+// 显示简单图案
+function displayPattern() {
+    // 设置内存地址到起始位置
+    sendCommand(0x21); // 设置列地址
+    sendCommand(0x00); // 起始列
+    sendCommand(0x7F); // 结束列
+    sendCommand(0x22); // 设置页地址
+    sendCommand(0x00); // 起始页
+    sendCommand(0x07); // 结束页
+    
+    // 创建一个简单的图案数据
+    const patternData = new Array(128 * 8).fill(0);
+    
+    // 在前几页创建一些图案
+    for (let page = 0; page < 8; page++) {
+        for (let col = 0; col < 128; col++) {
+            // 创建条纹图案
+            patternData[page * 128 + col] = (col % 8 < 4) ? 0xFF : 0x00;
+        }
+    }
+    
+    return sendData(patternData);
+}
+
+// 显示文本（简单实现）
+function displayText() {
+    // 设置内存地址到起始位置
+    sendCommand(0x21); // 设置列地址
+    sendCommand(0x00); // 起始列
+    sendCommand(0x7F); // 结束列
+    sendCommand(0x22); // 设置页地址
+    sendCommand(0x00); // 起始页
+    sendCommand(0x07); // 结束页
+    
+    // 创建简单的文本数据（这里只是一个示例）
+    const textData = new Array(128 * 8).fill(0);
+    
+    // 在第一页显示一些简单图案代表文字
+    for (let col = 0; col < 128; col++) {
+        // 创建简单的"HELLO"文字效果
+        if (col >= 20 && col <= 108) {
+            textData[col] = (col % 4 < 2) ? 0xFF : 0x00;
+        }
+    }
+    
+    return sendData(textData);
+}
+
 // 主程序
-console.log('开始 SSD1306 亮屏测试...');
+console.log('开始 SSD1306 测试...');
 
 // 打开设备
 const device = openDevice(DEVICE_INDEX);
@@ -112,15 +170,40 @@ if (!device.success) {
 console.log('CH341 设备已打开');
 
 try {
-    // 简单亮屏
-    console.log('点亮 SSD1306...');
-    if (!lightSSD1306()) {
-        console.error('SSD1306 亮屏失败');
+    // 初始化屏幕
+    console.log('初始化 SSD1306...');
+    if (!initSSD1306()) {
+        console.error('SSD1306 初始化失败');
         closeDevice(DEVICE_INDEX);
         process.exit(1);
     }
     
-    console.log('SSD1306 亮屏成功');
+    // 清屏
+    console.log('清屏...');
+    clearScreen();
+    
+    // 等待一段时间
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500);
+    
+    // 显示图案
+    console.log('显示图案...');
+    displayPattern();
+    
+    // 等待一段时间
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+    
+    // 清屏
+    console.log('清屏...');
+    clearScreen();
+    
+    // 等待一段时间
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500);
+    
+    // 显示文本
+    console.log('显示文本...');
+    displayText();
+    
+    console.log('SSD1306 测试完成');
     
 } catch (error) {
     console.error('操作过程中发生错误:', error);
