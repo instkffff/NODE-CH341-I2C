@@ -1,18 +1,18 @@
-// 2004.05.28, 2004.10.20, 2005.01.08, 2005.03.25, 2005.04.28, 2005.07.18, 2005.07.28, 2005.09.19, 2007.12.19, 2008.10.15,2022.5
+// 2004.05.28, 2004.10.20, 2005.01.08, 2005.03.25, 2005.04.28, 2005.07.18, 2005.07.28, 2005.09.19, 2007.12.19, 2008.10.15
 //****************************************
-//**  Copyright  (C)  WCH   1999-2022   **
+//**  Copyright  (C)  W.ch  1999-2008   **
 //**  Web:  http://www.winchiphead.com  **
 //****************************************
 //**  DLL for USB interface chip CH341  **
 //**  C, VC5.0                          **
 //****************************************
 //
-// USB总线接口芯片CH341并口应用层接口库 V2.2
+// USB总线接口芯片CH341并口应用层接口库 V2.1
 // 南京沁恒电子有限公司  作者: W.ch 2008.10
-// CH341-DLL  V2.2
-// 运行环境: Windows 98/ME, Windows 2000/XP/7/10/11
-// support USB chip: CH341, CH341A， CH347 SPI/I2C
-// USB => Parallel, I2C, SPI, ...
+// CH341-DLL  V2.1
+// 运行环境: Windows 98/ME, Windows 2000/XP
+// support USB chip: CH341, CH341A
+// USB => Parallel, I2C, SPI, JTAG ...
 //
 
 #ifndef		_CH341_DLL_H
@@ -22,11 +22,7 @@
 extern "C" {
 #endif
 
-#ifdef _WIN64
-#define		mOFFSET( s, m )			( (ULONG_PTR) & ( ( ( s * ) 0 ) -> m ) )	// 定义获取结构成员相对偏移地址的宏
-#else
 #define		mOFFSET( s, m )			( (ULONG) & ( ( ( s * ) 0 ) -> m ) )	// 定义获取结构成员相对偏移地址的宏
-#endif
 
 #ifndef		max
 #define		max( a, b )				( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )	// 较大值
@@ -78,7 +74,7 @@ typedef	struct	_WIN32_COMMAND {				// 定义WIN32命令接口结构
 	ULONG			mLength;					// 存取长度,返回后续数据的长度
 	union	{
 		mUSB_SETUP_PKT	mSetupPkt;				// USB控制传输的建立阶段的数据请求
-		UCHAR			mBuffer[ 512];      	// 数据缓冲区,长度为0至255B
+		UCHAR			mBuffer[ mCH341_PACKET_LENGTH ];	// 数据缓冲区,长度为0至255B
 	};
 } mWIN32_COMMAND, *mPWIN32_COMMAND;
 
@@ -131,7 +127,6 @@ typedef	struct	_WIN32_COMMAND {				// 定义WIN32命令接口结构
 #define		mFuncWriteRead			0x00000014	// 先输出再输入
 #define		mFuncBufferMode			0x00000020	// 设定缓冲上传模式及查询缓冲区中的数据长度
 #define		mFuncBufferModeDn		0x00000021	// 设定缓冲下传模式及查询缓冲区中的数据长度
-#define		mFuncGetVersionEx		0x00000022	// 获取驱动程序版本号及芯片型号
 
 
 // USB设备标准请求代码
