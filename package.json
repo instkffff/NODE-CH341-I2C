@@ -1,6 +1,6 @@
 {
   "name": "ch341-i2c",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "ch341 i2c windows",
   "keywords": [
     "ch341",
