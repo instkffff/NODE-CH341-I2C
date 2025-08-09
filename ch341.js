@@ -1,6 +1,20 @@
 import koffi from 'koffi';
 
-const ch341 = koffi.load('./lib/CH341DLLA64.DLL');
+import { platform, arch } from 'process';
+
+// 根据平台和架构选择DLL
+const dllMap = {
+    'win32': {
+        'x64': './lib/CH341DLLA64.DLL',
+        'ia32': './lib/CH341DLL.DLL'
+    }
+};
+
+if (!dllMap[platform] || !dllMap[platform][arch]) {
+    throw new Error(`Unsupported platform/architecture: ${platform}/${arch}`);
+}
+
+const ch341 = koffi.load(dllMap[platform][arch]);
 
 // ==================== 设备管理函数 ====================
 const CH341OpenDevice = ch341.func('CH341OpenDevice', 'void*', ['uint32']);

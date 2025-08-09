@@ -1,5 +1,41 @@
 {
+  "name": "ch341-i2c",
+  "version": "0.0.1",
+  "description": "ch341 i2c windows",
+  "keywords": [
+    "ch341",
+    "i2c"
+  ],
+  "homepage": "https://github.com/instkffff/NODE-CH341#readme",
+  "bugs": {
+    "url": "https://github.com/instkffff/NODE-CH341/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/instkffff/NODE-CH341.git"
+  },
+  "license": "ISC",
+  "author": "NightCandle",
+  "type": "module",
+  "main": "ch341.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "koffi": "^2.12.4"
+  },
+  "devDependencies": {},
+  "files": [
+    "lib/*.dll",
+    "ch341.js",
+    "scan.js",
+    "lib/"
+  ],
+  "exports": {
+    ".": "./ch341.js",
+    "./scan": "./scan.js"
   }
 }
