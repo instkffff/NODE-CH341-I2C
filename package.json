@@ -32,7 +32,8 @@
     "lib/*.dll",
     "ch341.js",
     "scan.js",
-    "lib/"
+    "lib/",
+    "ch341t.png"
   ],
   "exports": {
     ".": "./ch341.js",
